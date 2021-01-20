@@ -10,7 +10,7 @@ setup(
     name = "potluck",
     version = read("VERSION"),
     license = "gpl-3.0",
-    description = "Custom debugger combining dynamic instrumation with symbolic execution",
+    description = "Custom debugger combining dynamic instrumentation with symbolic execution",
     long_description = read("README.md"),
     long_description_content_type = "text/markdown",
     autho = "johneiser",
