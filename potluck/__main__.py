@@ -45,7 +45,7 @@ def _fetch_functions(agent, functions):
             yield g
 
 
-def run(spawn=None, process=None, functions=None, addresses=None, modules=None, number=3, **kwargs):
+def run(spawn=None, process=None, functions=None, addresses=None, modules=None, number=3, run=None, **kwargs):
     """
     Launch the debugger by injecting an agent
     into the target (or spawned) process, hook
@@ -61,7 +61,6 @@ def run(spawn=None, process=None, functions=None, addresses=None, modules=None, 
     :param bool verbose: print debug info
     :param str log: log to file
     """
-
     # Read the agent to inject
     log.debug("Loading agent: %s", AGENT)
     with open(os.path.join(os.path.dirname(__file__), AGENT), "r") as f:
@@ -88,7 +87,9 @@ def run(spawn=None, process=None, functions=None, addresses=None, modules=None, 
 
         # Register prompt callback
         log.debug("Registering prompt callback")
+        Prompt.script = run.readlines() if run else []
         prompt = Prompt(session, agent)
+        prompt.cmdqueue = [i for i in Prompt.script]
         agent.on("message", prompt.callback)
         agent.load()
 
@@ -165,6 +166,7 @@ def main():
     parser.add_argument("-a", "--address", dest="addresses", type=str, action="append", help="hook function(s) by address")
     parser.add_argument("-m", "--module", dest="modules", type=str, action="append", help="restrict hooks to module(s)")
     parser.add_argument("-n", "--number", type=int, help="number of function arguments", default=3) # TODO: find a better way to do this
+    parser.add_argument("-r", "--run", type=argparse.FileType("r"), help="specify commands to run")
     parser.add_argument("-v", "--verbose", action="store_true", help="print debug info")
     parser.add_argument("-l", "--log", type=str, help="log to file")
     args = parser.parse_args()

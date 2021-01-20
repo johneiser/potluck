@@ -11,7 +11,7 @@ resuming execution.
 const Task = Object.freeze({
     "NOP"   : 0,
     "RESUME": 1,
-    "READ"  : 2,
+    "CALL"  : 2,
 });
 
 rpc.exports = {
@@ -103,13 +103,23 @@ rpc.exports = {
             "length": size, "ansi": true}) + "\n");
     },
 
+    searchAndDump(address, size, pattern) {
+        console.log(`Searching for ${pattern}`);
+        Memory
+            .scanSync(ptr(address), size, pattern)
+            .forEach(function (match) {
+                console.log("\n" + hexdump(ptr(match.address), {
+                    "length": match.size, "ansi": true}) + "\n");
+            });
+    },
+
     test(args) {
         //console.log("Performing test with args: " + JSON.stringify(task.args));
         //for (var j = 0; j < 10000; j++)
         //    console.log(`${j}`);
     },
 
-    hook(address, numArgs) {
+    hook(address, numArgs = 3) {
         var symbol = DebugSymbol.fromAddress(ptr(address))
         console.log(`Hooking: ${symbol}`);
         
@@ -168,8 +178,12 @@ rpc.exports = {
                                         resume = true;
                                         break
                                     
-                                    case Task.READ:
-                                        rpc.exports.dump(task.args.addr, task.args.size);
+                                    case Task.CALL:
+                                        var func = rpc.exports[task.name];
+                                        if (!func)
+                                            throw "Export does not exist: " + task.name;
+
+                                        func.apply(null, task.args);
                                         break;
 
                                     default:
@@ -186,7 +200,7 @@ rpc.exports = {
         });
     },
 
-    unhookAll() {
+    unhook() {
         Interceptor.detachAll();
     },
 

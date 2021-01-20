@@ -27,8 +27,15 @@ setup(
     python_requires = ">=3.5.0",
     install_requires = [
         "frida",
-        "angr",
     ],
+    extras_require = {
+        "angr": [
+            "angr",
+        ],
+        "pretty": [
+            "prettytable",
+        ],
+    },
     classifiers = [
         "Development Status :: 3 - Alpha",
         # "Development Status :: 4 - Beta",
