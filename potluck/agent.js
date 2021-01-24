@@ -90,27 +90,67 @@ rpc.exports = {
             return module;
     },
 
-    search(address, size, pattern) {    // list [ address, size ]
-        return Memory.scanSync(ptr(address), size, pattern);
+    getExportsByModuleAddress(address) {    // list [ address, name, type ]
+        var module = Process.findModuleByAddress(ptr(address));
+        if (module)
+            return module.enumerateExports();
+    },
+
+    getExportsByModuleName(name) {          // list [ address, name, type ]
+        var module = Process.findModuleByName(name);
+        if (module)
+            return module.enumerateExports();
+    },
+
+    getImportsByModuleAddress(address) {    //list [ address, name, type ]
+        var module = Process.findModuleByAddress(ptr(address));
+        if (module)
+            return module.enumerateImports();
+    },
+
+    getImportsByModuleName(name) {          // list [ address, name, type ]
+        var module = Process.findModuleByName(name);
+        if (module)
+            return module.enumerateImports();
     },
 
     read(address, size) {   // bytes
-        return ptr(address).readByteArray(size);
+        try {
+            return ptr(address).readByteArray(size);
+        } catch (error) {
+            console.error(error);
+        }
     },
 
     dump(address, size) {
-        console.log("\n" + hexdump(ptr(address), {
-            "length": size, "ansi": true}) + "\n");
+        try {
+            console.log("\n" + hexdump(ptr(address), {
+                "length": size, "ansi": true}) + "\n");
+        } catch (error) {
+            console.error(error);
+        }
+    },
+
+    search(address, size, pattern) {    // list [ address, size ]
+        try {
+            return Memory.scanSync(ptr(address), size, pattern);
+        } catch (error) {
+            console.error(error);
+        }
     },
 
     searchAndDump(address, size, pattern) {
-        console.log(`Searching for ${pattern}`);
-        Memory
-            .scanSync(ptr(address), size, pattern)
-            .forEach(function (match) {
-                console.log("\n" + hexdump(ptr(match.address), {
-                    "length": match.size, "ansi": true}) + "\n");
-            });
+        try {
+            console.log(`Searching for ${pattern}`);
+            Memory
+                .scanSync(ptr(address), size, pattern)
+                .forEach(function (match) {
+                    console.log("\n" + hexdump(ptr(match.address), {
+                        "length": match.size, "ansi": true}) + "\n");
+                });
+        } catch (error) {
+            console.error(error);
+        }
     },
 
     test(args) {
@@ -151,13 +191,13 @@ rpc.exports = {
             },
 
             // Grab and report result upon leaving
-            onLeave: function (retval) {
+            onLeave: function (ret) {
                 send(JSON.stringify({
                     thread: this.threadId,
                     addr: this.context.pc,
                     func: DebugSymbol.fromAddress(this.context.pc),
                     args: this.args,
-                    retval: retval,
+                    ret: ret,
                     retaddr: this.returnAddress,
                     backtrace: this.backtrace,
                 }));

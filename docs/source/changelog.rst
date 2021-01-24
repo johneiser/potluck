@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.2.0
+^^^^^
+
+January 24, 2021
+
+- Redesigned interface with adaptable prompt
+  
+
 0.1.0
 ^^^^^
 
