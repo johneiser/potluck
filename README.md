@@ -65,10 +65,16 @@ optional arguments:
 
 To spawn `echo` and hook after it has written "Hello, world!".
 ```
-$ potluck -c "$(which echo) Hello world\!" -f write -s <(echo -e "dumpret 1")
-Hooking: 0x7f0879bb71d0 libc.so.6!__write
-Hooking: 0x7f0879a86280 libpthread.so.0!write
+$ potluck -c "$(which echo) Hello world\!" -f write
+Hooking: 0x7f113af7b1d0 libc.so.6!__write
+Hooking: 0x7f113ae4a280 libpthread.so.0!write
 Hello world!
-0x7f0879bb71d0 libc.so.6!__write (0x1, 0x557415ed9cf0, 0xd) = 0xd
+0x7f113af7b1d0 libc.so.6!__write (0x1, 0x56127d2b2cf0, 0xd) = 0xd
+[Session(pid=37661) => 37661]> dumpret 1
+
+               0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F  0123456789ABCDEF
+56127d2b2cf0  48 65 6c 6c 6f 20 77 6f 72 6c 64 21 0a           Hello world!.
+
 [Session(pid=37661) => 37661]> 
 ```
+

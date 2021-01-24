@@ -122,10 +122,10 @@ rpc.exports = {
         }
     },
 
-    dump(address, size) {
+    dump(address, size, ansi = true) {
         try {
             console.log("\n" + hexdump(ptr(address), {
-                "length": size, "ansi": true}) + "\n");
+                "length": size, "ansi": ansi}) + "\n");
         } catch (error) {
             console.error(error);
         }
@@ -139,14 +139,14 @@ rpc.exports = {
         }
     },
 
-    searchAndDump(address, size, pattern) {
+    searchAndDump(address, size, pattern, ansi = true) {
         try {
             console.log(`Searching for ${pattern}`);
             Memory
                 .scanSync(ptr(address), size, pattern)
                 .forEach(function (match) {
                     console.log("\n" + hexdump(ptr(match.address), {
-                        "length": match.size, "ansi": true}) + "\n");
+                        "length": match.size, "ansi": ansi}) + "\n");
                 });
         } catch (error) {
             console.error(error);
