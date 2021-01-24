@@ -88,11 +88,11 @@ def main():
         run(**kwargs)
 
     # Handle user cancellation
-    except (KeyboardInterrupt, EOFError):
+    except (KeyboardInterrupt, EOFError, base.Prompt.Interrupt):
         print("\r")
 
     # Handle known errors
-    except (AssertionError, frida.InvalidOperationError, base.Prompt.Interrupt) as e:
+    except (AssertionError, frida.InvalidOperationError) as e:
         log.error(e)
 
     # Handle unknown errors
