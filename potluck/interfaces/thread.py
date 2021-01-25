@@ -267,7 +267,7 @@ class ThreadInterface(AgentInterface):
             # Create a concrete target
             self.log.debug("Creating concrete target...")
             from .angr_target import FridaConcreteTarget
-            ct = FridaConcreteTarget(self.agent, self.hook["context"])
+            ct = FridaConcreteTarget(self.agent, self.context)
             self.log.debug("Created concrete target: %s", ct)
 
             # Create an angr project with a concrete target
