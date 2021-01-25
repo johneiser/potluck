@@ -1,8 +1,12 @@
-import pprint
+import pprint, logging
 try:
     from prettytable import PrettyTable
 except ImportError:
     pass
+
+log = logging.getLogger(__package__)
+log.setLevel(logging.DEBUG)
+
 
 def tformat(items, **kwargs):
     """
@@ -32,7 +36,7 @@ def tformat(items, **kwargs):
 
     # Default to pprint if prettytable is not available
     except NameError:
-        log.debug("Tip: `pip install prettytable` to improve this output")
+        log.info("Tip: `pip3 install %s[pretty]` to improve this output", __package__)
         return pprint.pformat(items)
 
 def tprint(*args, **kwargs):

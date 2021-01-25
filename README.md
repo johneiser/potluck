@@ -6,9 +6,11 @@ Potluck is a custom debugger combining dynamic instrumentation with symbolic exe
 ## XX WORK IN PROGRESS XX
 
 TODO:
-- generate memory maps
-- create angr concrete target
-- pull state from frida using concrete target and symbion
+- [x] generate memory maps
+- [x] create angr concrete target
+- [x] pull state from frida using concrete target and symbion
+- [ ] automatically get file backing process for simulation
+- [ ] add symbolic execution functionality using pulled state
 
 ## Requirements
 
@@ -26,13 +28,13 @@ $ pip3 install git+https://github.com/johneiser/potluck.git
 To add support for angr symbolic execution:
 
 ```
-$ pip3 install git+https://github.com/johneiser/potluck.git[angr]
+$ pip3 install potluck[angr]
 ```
 
 To add support for pretty output:
 
 ```
-$ pip3 install git+https://github.com/johneiser/potluck.git[pretty]
+$ pip3 install potluck[pretty]
 ```
 
 # Usage

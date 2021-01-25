@@ -31,6 +31,7 @@ setup(
     extras_require = {
         "angr": [
             "angr",
+            "angr-targets @ git+https://github.com/angr/angr-targets.git",
         ],
         "pretty": [
             "prettytable",

@@ -1,9 +1,10 @@
 import os, sys, argparse, logging, frida
 from .interfaces import interfaces
 from .interfaces import *
+from .utils import log
 
-log = logging.getLogger(__package__)
-log.setLevel(logging.DEBUG)
+LOG_FORMAT = "%(message)s"
+LOG_FORMAT_FILE = "%(message)s"
 
 AGENT = "agent.js"
 
@@ -74,14 +75,18 @@ def main():
     kwargs = vars(args)
 
     # Configure stream logging
+    formatter = logging.Formatter(LOG_FORMAT)
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(logging.DEBUG if args.verbose else logging.INFO)
+    handler.setFormatter(formatter)
     log.addHandler(handler)
 
     # Configure file logging
     if args.log:
+        formatter = logging.Formatter(LOG_FORMAT_FILE)
         handler = logging.FileHandler(args.log)
         handler.setLevel(logging.DEBUG)
+        handler.setFormatter(formatter)
         log.addHandler(handler)
 
     try:

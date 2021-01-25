@@ -74,6 +74,14 @@ rpc.exports = {
         return Process.enumerateThreads();
     },
 
+    getRanges(protection = "---") {
+        return Process.enumerateRanges(protection);
+    },
+
+    getMallocRanges(protection = "---") {
+        return Process.enumerateMallocRanges(protection);
+    },
+
     getModules() {      // list [ name, base, size, path ]
         return Process.enumerateModules();
     },
@@ -115,11 +123,8 @@ rpc.exports = {
     },
 
     read(address, size) {   // bytes
-        try {
-            return ptr(address).readByteArray(size);
-        } catch (error) {
-            console.error(error);
-        }
+        return ptr(address).readByteArray(size);
+        // throws frida.core.RPCException
     },
 
     dump(address, size, ansi = true) {
@@ -132,11 +137,8 @@ rpc.exports = {
     },
 
     search(address, size, pattern) {    // list [ address, size ]
-        try {
-            return Memory.scanSync(ptr(address), size, pattern);
-        } catch (error) {
-            console.error(error);
-        }
+        return Memory.scanSync(ptr(address), size, pattern);
+        // throws frida.core.RPCException
     },
 
     searchAndDump(address, size, pattern, ansi = true) {
@@ -200,6 +202,7 @@ rpc.exports = {
                     ret: ret,
                     retaddr: this.returnAddress,
                     backtrace: this.backtrace,
+                    context: this.context,
                 }));
 
                 // Pause thread and wait for tasking

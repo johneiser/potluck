@@ -2,9 +2,11 @@ __all__ = [
     "base",
     "process",
     "thread",
+    "angr",
 ]
 
 import sys, cmd, shlex, logging, threading, queue, json, pprint, frida
+from ..utils import log
 
 # Global registry of command prompt interfaces
 interfaces = {}
@@ -30,7 +32,7 @@ class Interface(cmd.Cmd, metaclass=Interfaceable):
     """
     event   = None  # Blocking lock to hold prompt between events
     queue   = None  # Blocking queue to synchronize hooks across threads
-    log     = logging.getLogger(__package__)
+    log     = log
     
     class Interrupt(KeyboardInterrupt):
         """

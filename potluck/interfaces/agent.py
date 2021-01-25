@@ -30,6 +30,33 @@ class AgentInterface(Interface):
         list the threads present in the process"""
         tprint(self.agent.exports.get_threads(), field_names=["id", "state"])
 
+    def do_maps(self, line):
+        """maps [protection]
+        list the memory mappings present in the process"""
+
+        # Parse optional argument
+        try:
+            (protection,) = shlex.split(line)
+        except ValueError:
+            protection = "---"
+
+        # Fetch mappings with given protection
+        maps = self.agent.exports.get_ranges(protection)
+
+        # Replace file object with it's path component
+        for m in maps:
+            for k,v in m.items():
+                if k == "file" and v is not None:
+                    m[k] = v["path"]
+
+        tprint(maps, sortby="base", align="l")
+
+    def do_mallocs(self, line):
+        """mallocs [protection]
+        list of memory malloc ranges present in the process"""
+        mallocs = self.agent.exports.get_malloc_ranges(line)
+        tprint(mallocs, sortby="base", align="l")
+
     def get_modules(self, name=None):
         """
         Get a list of modules for an arbitrary name.
@@ -387,4 +414,3 @@ class AgentInterface(Interface):
             self.log.error(e)
             print("Usage: search <pattern> <address> [size]")
             return
-        

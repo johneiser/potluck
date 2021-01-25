@@ -2,6 +2,16 @@
 Changelog
 =========
 
+0.3.0
+^^^^^
+
+January 24, 2021
+
+- Added dumping memory maps
+- Added angr concrete target
+- Added capture of angr simulation state from concrete target
+
+
 0.2.0
 ^^^^^
 

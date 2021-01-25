@@ -1,4 +1,4 @@
-import shlex, json, queue
+import shlex, json, queue, logging
 from . import Interface
 from .agent import AgentInterface
 from ..utils import tformat, tprint, to_hex
@@ -72,6 +72,10 @@ class ThreadInterface(AgentInterface):
     @property
     def func(self):
         return self.hook.get("func")
+
+    @property
+    def addr(self):
+        return self.hook.get("addr")
     
     @property
     def args(self):
@@ -80,6 +84,10 @@ class ThreadInterface(AgentInterface):
     @property
     def ret(self):
         return self.hook.get("ret")
+
+    @property
+    def context(self):
+        return self.hook.get("context")
 
     def callback(self, message, data):
         """Called when a message is received from the agent"""
@@ -243,3 +251,55 @@ class ThreadInterface(AgentInterface):
                 self.agent.exports.search_and_dump(addr,
                     int(self.ret, 16), to_hex(pattern))
 
+    def do_simulate(self, line):
+        """simulate <file>
+        capture the state of the target for simulation"""
+
+        try:
+            # Import angr and remove added logging handler
+            self.log.debug("Importing angr")
+            import angr
+            for handler in self.log.parent.handlers:
+                if isinstance(handler, angr.misc.loggers.CuteHandler):
+                    self.log.parent.removeHandler(handler)
+                    self.log.debug("Removing log handler: %s", handler)
+
+            # Create a concrete target
+            self.log.debug("Creating concrete target...")
+            from .angr_target import FridaConcreteTarget
+            ct = FridaConcreteTarget(self.agent, self.hook["context"])
+            self.log.debug("Created concrete target: %s", ct)
+
+            # Create an angr project with a concrete target
+            self.log.debug("Creating angr project from file: %s", line)
+            p = angr.Project(line, concrete_target=ct, use_sim_procedures=True)
+            self.log.debug("Created angr project: %s", p)
+            
+            # Create an entry state
+            self.log.debug("Creating entry state...")
+            entry_state = p.factory.entry_state()
+            entry_state.options.add(angr.options.SYMBION_SYNC_CLE)
+            entry_state.options.add(angr.options.SYMBION_KEEP_STUBS_ON_SYNC)
+            self.log.debug("Created entry state: %s", entry_state)
+
+            # Create a simulation manager from the entry state
+            self.log.debug("Creating simulation manager...")
+            simgr = p.factory.simgr(entry_state)
+            self.log.debug("Created simulation manager: %s", simgr)
+            
+            # Sync with the concrete target
+            self.log.debug("Syncing state with concrete target...")
+            simgr.use_technique(angr.exploration_techniques.Symbion(find=[int(self.addr,16)]))
+            exploration = simgr.run()
+            self.log.debug("Sync complete: %s", exploration)
+            
+            self.state = exploration.stashes["found"][0]
+            self.log.info("Isolated synchronized state: %s", self.state)
+
+        except ImportError as e:
+            self.log.warning(e)
+            self.log.info("Tip: Unlock symbolic execution functionality with `pip3 install %s[angr]`", self.log.name)
+
+        except Exception as e:
+            self.log.error("Must provide file backing process: %s", e)
+            print("Usage: simulate <file>")
