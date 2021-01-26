@@ -7,17 +7,23 @@ class Prompt(Interface):
     Command prompt capable of attaching to a process and
     injecting an agent.
     """
+    device      = None  # Device controlling the target process
     source      = None  # Source code of agent to inject
     prompt      = "[_local_]> "
 
-    def __init__(self, agent, *args, **kwargs):
+    def __init__(self, device, agent, *args, **kwargs):
         super(Prompt, self).__init__(*args, **kwargs)
+        self.device = device
         self.source = agent
 
     @classmethod
     def qualify(cls, self):
         """Evaluate the environment for this interface"""
         return cls
+
+    @property
+    def prompt(self):
+        return "[%s]> " % self.device.name
 
     def _log_handler(self, level, text):
 
@@ -52,7 +58,7 @@ class Prompt(Interface):
         # Spawn process
         try:
             self.log.debug("Spawning process: %s", command)
-            self.process = frida.spawn(shlex.split(command))
+            self.process = self.device.spawn(shlex.split(command))
             self.suspended = True
 
             # Attach to spawned process
@@ -65,7 +71,7 @@ class Prompt(Interface):
 
             # Kill process if exists
             if hasattr(self, "process") and self.process:
-                frida.kill(self.process)
+                self.device.kill(self.process)
 
             raise
 
@@ -82,7 +88,7 @@ class Prompt(Interface):
         try:
             # Attach to process
             self.log.debug("Attaching to process: %s", process)
-            self.session = frida.attach(process)
+            self.session = self.device.attach(process)
             
             # Create agent
             self.agent = self.session.create_script(self.source)

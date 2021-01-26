@@ -9,7 +9,7 @@ LOG_FORMAT_FILE = "%(message)s"
 AGENT = "agent.js"
 
 
-def run(create=None, process=None, function=None, module=None, number=None, script=None, **kwargs):
+def run(create=None, process=None, function=None, module=None, number=None, script=None, remote=None, **kwargs):
     """
     Launch the debugger by injecting an agent into the target
     (or spawned) process, hook any specified functions, then
@@ -21,6 +21,7 @@ def run(create=None, process=None, function=None, module=None, number=None, scri
     :param list modules: modules to restrict hooks
     :param int number: number of function arguments in hooks
     :param file script: file containing scripted commands
+    :param str remote: address of remote frida-server
     """
     
     # Read the agent to inject
@@ -28,8 +29,14 @@ def run(create=None, process=None, function=None, module=None, number=None, scri
     with open(os.path.join(os.path.dirname(__file__), AGENT), "r") as f:
         source = f.read()
 
+    # Identify the device responsible for the process
+    if remote:
+        device = frida.get_device_manager().add_remote_device(remote)
+    else:
+        device = frida.get_local_device()
+
     # Create and configure command prompt interface
-    prompt = base.Prompt(source)
+    prompt = base.Prompt(device, source)
 
     # Spawn a new process
     if create:
@@ -69,6 +76,7 @@ def main():
     parser.add_argument("-m", "--module", type=str, help="restrict hooks to module(s)")
     parser.add_argument("-n", "--number", type=int, help="number of function arguments")
     parser.add_argument("-s", "--script", type=argparse.FileType("r"), help="file with commands to run for each hook")
+    parser.add_argument("-r", "--remote", type=str, help="address of remote frida-server")
     parser.add_argument("-v", "--verbose", action="store_true", help="print debug info")
     parser.add_argument("-l", "--log", type=str, help="log to file")
     args = parser.parse_args()

@@ -2,6 +2,16 @@
 Changelog
 =========
 
+0.3.1
+^^^^^
+
+January 25, 2021
+
+- Changed interface registry from dict to list to preserve order
+- Explicitly labeled printed tables to preserve order
+- Added support for connecting to remote frida-server
+
+
 0.3.0
 ^^^^^
 

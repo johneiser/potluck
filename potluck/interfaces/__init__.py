@@ -9,7 +9,7 @@ import sys, cmd, shlex, logging, threading, queue, json, pprint, frida
 from ..utils import log
 
 # Global registry of command prompt interfaces
-interfaces = {}
+interfaces = []
 
 
 class Interfaceable(type):
@@ -23,7 +23,7 @@ class Interfaceable(type):
 
         # Register interface
         if hasattr(cls, "qualify"):
-            interfaces[name] = cls
+            interfaces.append(cls)
 
 
 class Interface(cmd.Cmd, metaclass=Interfaceable):
@@ -87,7 +87,7 @@ class Interface(cmd.Cmd, metaclass=Interfaceable):
         original = self.__class__
 
         # Cycle through all registered interfaces in order
-        for name, interface in interfaces.items():
+        for interface in interfaces:
 
             # Apply class if qualified
             try:

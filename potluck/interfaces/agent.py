@@ -49,7 +49,8 @@ class AgentInterface(Interface):
                 if k == "file" and v is not None:
                     m[k] = v["path"]
 
-        tprint(maps, sortby="base", align="l")
+        tprint(maps, sortby="base", align="l",
+            field_names=["base", "size", "protection", "file"])
 
     def do_mallocs(self, line):
         """mallocs [protection]
@@ -101,7 +102,8 @@ class AgentInterface(Interface):
                 print("Usage: modules [name]")
                 return
 
-        tprint(self.get_modules(name), sortby="base", align="l")
+        tprint(self.get_modules(name), sortby="base", align="l",
+            field_names=["name", "base", "size", "path"])
 
     def get_exports(self, module=None):
         """
@@ -284,7 +286,8 @@ class AgentInterface(Interface):
                 print("Usage: functions [name]")
                 return
 
-        tprint(self.get_functions(name), sortby="address", align="l")
+        tprint(self.get_functions(name), sortby="address", align="l",
+            field_names=["address", "name", "moduleName", "fileName", "lineNumber"])
         
     def do_variables(self, line):
         """variables [module] [name]
@@ -314,7 +317,7 @@ class AgentInterface(Interface):
             if name:
                 exports = [e for e in exports if fnmatch.fnmatch(e["name"], name)]
 
-        tprint(exports, field_names=["address", "name", "type"], sortby="address", align="l")
+        tprint(exports, sortby="address", align="l", field_names=["address", "name", "type"])
 
     def do_read(self, line):
         """read <address> [size]

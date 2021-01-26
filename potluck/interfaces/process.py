@@ -21,10 +21,16 @@ class ProcessInterface(AgentInterface):
     def _exit(self):
         """Called when exiting the prompt"""
 
-        # Detach from process
         try:
-            self.log.debug("Detaching from session: %s", self.session)
-            self.session.detach()
+            # Unload agent
+            if hasattr(self, "agent") and self.agent:
+                self.log.debug("Unloading agent: %s", self.agent)
+                self.agent.unload()
+
+            # Detach from process
+            if hasattr(self, "session") and self.session:
+                self.log.debug("Detaching from session: %s", self.session)
+                self.session.detach()
 
         # Disqualify interface
         finally:
@@ -144,7 +150,7 @@ class SpawnedProcessInterface(ProcessInterface):
         # Kill spawned process..
         try:
             self.log.debug("Killing process: %s", self.process)
-            frida.kill(self.process)
+            self.device.kill(self.process)
 
         # ..if it still exists
         except (frida.ProcessNotFoundError,) as e:
@@ -176,7 +182,7 @@ class SuspendedProcessInterface(SpawnedProcessInterface):
     def do_continue(self, line):
         """continue
         resume suspended process"""
-        frida.resume(self.process)
+        self.device.resume(self.process)
         self.suspended = False
 
     def do_hook(self, line):
@@ -185,6 +191,6 @@ class SuspendedProcessInterface(SpawnedProcessInterface):
         super(SpawnedProcessInterface, self).do_hook(line)
         
         # Continue after settings hooks
-        frida.resume(self.process)
+        self.device.resume(self.process)
         self.suspended = False
         
