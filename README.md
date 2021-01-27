@@ -9,8 +9,8 @@ TODO:
 - [x] generate memory maps
 - [x] create angr concrete target
 - [x] pull state from frida using concrete target and symbion
-- [ ] automatically get file backing process for simulation
-- [ ] add symbolic execution functionality using pulled state
+- [x] automatically get file backing process for simulation
+- [ ] do something with symbolic execution
 
 ## Requirements
 
@@ -58,6 +58,8 @@ optional arguments:
                         number of function arguments
   -s SCRIPT, --script SCRIPT
                         file with commands to run for each hook
+  -r REMOTE, --remote REMOTE
+                        address of remote frida-server
   -v, --verbose         print debug info
   -l LOG, --log LOG     log to file
 ```
