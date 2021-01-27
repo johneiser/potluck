@@ -42,7 +42,7 @@ $ pip3 install potluck[pretty]
 
 ```
 usage: potluck [-h] [-c CREATE] [-p PROCESS] [-f FUNCTION] [-m MODULE]
-               [-n NUMBER] [-s SCRIPT] [-v] [-l LOG]
+               [-n NUMBER] [-s SCRIPT] [-r REMOTE] [-v] [-l LOG]
 
 optional arguments:
   -h, --help            show this help message and exit
