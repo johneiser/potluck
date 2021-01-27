@@ -60,6 +60,8 @@ class AngrInterface(ThreadInterface):
     def image(self):
         """Lazy image only captured when needed"""
         if not self._image:
+            if self.device.type != "local":
+                raise FileNotFoundError("Remote frida-server in use, image base path not valid: %s" % self.agent.exports.get_image())
             self._image = self.agent.exports.get_image()
         return self._image
 
