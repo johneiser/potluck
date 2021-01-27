@@ -95,6 +95,11 @@ class ProcessInterface(AgentInterface):
         # Parse arguments
         (function, module, number) = parse_line_as(line, [int16, str], [str], [int, 3])
 
+        # Validate required arguments
+        if not function:
+            print("Usage: hook <function> [module] [number]")
+            return
+
         # Fetch modules and functions
         modules = self.get_modules(module)
         functions = self.get_functions(function)
