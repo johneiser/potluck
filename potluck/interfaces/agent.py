@@ -163,24 +163,25 @@ class AgentInterfaceBackbone(Interface):
 
         return functions
 
-    def dump(self, address, size=32):
+    def dump(self, address, size=32, limit=0):
         """
         Dump bytes from an arbitrary address.
 
         :param str address: address to read from
         :param int size: number of bytes to read
+        :param int limit: recursion limit
         """
 
         # Dump from address
         if isinstance(address, int):
-            self.agent.exports.dump(address, size)
+            self.agent.exports.dump(address, size, limit)
 
         # Dump from symbol name
         else:
             symbol = self.agent.exports.get_symbol_by_name(address)
             if symbol and symbol["address"]:
                 self.log.info(symbol["name"])
-                self.agent.exports.dump(symbol["address"], size)
+                self.agent.exports.dump(symbol["address"], size, limit)
                 return
 
             # Dump from export name
@@ -189,28 +190,29 @@ class AgentInterfaceBackbone(Interface):
                 for export in exports:
                     if fnmatch.fnmatch(export["name"].lower(), address.lower()):
                         self.log.info(export["name"])
-                        self.agent.exports.dump(export["address"], size)
+                        self.agent.exports.dump(export["address"], size, limit)
 
-    def search(self, pattern, address, size=1024):
+    def search(self, pattern, address, size=1024, limit=0):
         """
         Search for a byte pattern at an arbitrary address.
 
         :param str pattern: pattern to search for
         :param str address: address to search at
         :param int size: range of bytes to search
+        :param int limit: recursion limit
         """
         if pattern:
 
             # Search at address
             if isinstance(address, int):
-                self.agent.exports.search_and_dump(address, size, to_hex(pattern))
+                self.agent.exports.search_and_dump(to_hex(pattern), address, size, limit)
 
             # Search at symbol name
             else:
                 symbol = self.agent.exports.get_symbol_by_name(address)
                 if symbol and symbol["address"]:
                     self.log.info(symbol["name"])
-                    self.agent.exports.search_and_dump(symbol["address"], size, to_hex(pattern))
+                    self.agent.exports.search_and_dump(to_hex(pattern), symbol["address"], size, limit)
                     return
 
                 # Search at export name
@@ -218,8 +220,8 @@ class AgentInterfaceBackbone(Interface):
                 if exports:
                     for export in exports:
                         if fnmatch.fnmatch(export["name"].lower(), address):
-                            self.log.info(symbol["name"])
-                            self.agent.exports.search_and_dump(exports["address"], size, to_hex(pattern))
+                            self.log.info(export["name"])
+                            self.agent.exports.search_and_dump(to_hex(pattern), export["address"], size, limit)
 
 
 class AgentInterface(AgentInterfaceBackbone):
@@ -368,31 +370,31 @@ class AgentInterface(AgentInterfaceBackbone):
             field_names=["address", "name", "moduleName"])
 
     def do_read(self, line):
-        """read <address> [size]
+        """read <address> [size] [limit]
         read bytes from the specified address"""
 
         # Parse arguments
-        (address, size) = parse_line_as(line, [int16, str], [int, int16, 32])
+        (address, size, limit) = parse_line_as(line, [int16, str], [int, int16, 32], [int, 0])
 
         # Validate required arguments
         if not address:
-            print("Usage: read <address> [size]")
+            print("Usage: read <address> [size] [limit]")
             return
         
         # Dump memory
-        self.dump(address, size)
+        self.dump(address, size, limit)
 
     def do_search(self, line):
-        """search <pattern> <address> [size]
+        """search <pattern> <address> [size] [limit]
         search for a byte pattern after the specified address"""
 
         # Parse arguments
-        (pattern, address, size) = parse_line_as(line, [str], [int16, str], [int, int16, 1024])
-
+        (pattern, address, size, limit) = parse_line_as(line, [str], [int16, str], [int, int16, 1024], [int, 0])
+        
         # Validate required arguments
         if not pattern and address:
-            print("Usage: search <pattern> <address> [size]")
+            print("Usage: search <pattern> <address> [size] [limit]")
             return
 
         # Search memory
-        self.search(pattern, address, size)
+        self.search(pattern, address, size, limit)

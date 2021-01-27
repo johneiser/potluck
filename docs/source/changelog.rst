@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.3.3
+^^^^^
+
+January 27, 2021
+
+- Added reading and searching memory recursively
+
+
 0.3.2
 ^^^^^
 

@@ -154,43 +154,40 @@ class ThreadInterface(AgentInterface):
 
     # Overload read to enable argument specification
     def do_read(self, line):
-        """read [address|arg] [size]
+        """read [address|arg] [size] [limit]
         read bytes from the specified address"""
 
         # Parse arguments
-        (address, size) = parse_line_as(line, [int, int16, str], [int, int16, 32])
+        (address, size, limit) = parse_line_as(line, [int, int16, str], [int, int16, 32], [int, 0])
 
         # Read from the specified argument
-        if address:
+        if address is not None:
             if isinstance(address, int):
                 try:
-                    self.dump(int16(self.args[address]), size)
+                    self.dump(int16(self.args[address]), size, limit)
                     return
                 except IndexError:
                     pass
 
             # Read from the specified address
-            self.dump(address, size)
+            self.dump(address, size, limit)
 
-        # Read from all arguments
+        # Read from all arguments, recursively
         else:
             for arg in self.args:
-                self.dump(int16(arg), size)
-
-    # TODO: recursive read
-    # TODO: recursive search
+                self.dump(int16(arg), size, 5)
 
     # Overload search to enable argument specification
     def do_search(self, line):
-        """search <pattern> [address|arg] [size]
+        """search <pattern> [address|arg] [size] [limit]
         search for a byte pattern at the specified address"""
 
         # Parse arguments
-        (pattern, address, size) = parse_line_as(line, [str], [int, int16, str], [int, int16, 1024])
+        (pattern, address, size, limit) = parse_line_as(line, [str], [int, int16, str], [int, int16, 1024], [int, 0])
 
         # Validate required arguments
         if not pattern:
-            print("Usage: search <pattern> [address|arg] [size]")
+            print("Usage: search <pattern> [address|arg] [size] [limit]")
             return
 
         # Normalize pattern
@@ -200,16 +197,16 @@ class ThreadInterface(AgentInterface):
         if address:
             if isinstance(address, int):
                 try:
-                    self.search(pattern, int16(self.args[address]), size)
+                    self.search(pattern, int16(self.args[address]), size, limit)
                 
                 # Search address directly
                 except IndexError:
-                    self.search(pattern, address, size)
+                    self.search(pattern, address, size, limit)
 
-        # Search through all arguments
+        # Search through all arguments, recursively
         else:
             for arg in self.args:
-                self.search(pattern, int16(arg), size)
+                self.search(pattern, int16(arg), size, 5)
 
     def do_simulate(self, line):
         """simulate <file>

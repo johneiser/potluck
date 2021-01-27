@@ -98,7 +98,7 @@ rpc.exports = {
             return module;
     },
 
-    getExportsByModuleAddress(address) {    // list [ address, name, type ]
+    getExportsByModuleAddress(address) {    // list [ address, name, type, moduleName ]
         var module = Process.findModuleByAddress(ptr(address));
         if (module)
             return module.enumerateExports().filter(function (e) {
@@ -107,7 +107,7 @@ rpc.exports = {
             });
     },
 
-    getExportsByModuleName(name) {          // list [ address, name, type ]
+    getExportsByModuleName(name) {          // list [ address, name, type, moduleName ]
         var module = Process.findModuleByName(name);
         if (module)
             return module.enumerateExports().filter(function (e) {
@@ -116,7 +116,7 @@ rpc.exports = {
             });
     },
 
-    getImportsByModuleAddress(address) {    //list [ address, name, type ]
+    getImportsByModuleAddress(address) {    //list [ address, name, type, moduleName ]
         var module = Process.findModuleByAddress(ptr(address));
         if (module)
             return module.enumerateImports().filter(function (i) {
@@ -125,7 +125,7 @@ rpc.exports = {
             });
     },
 
-    getImportsByModuleName(name) {          // list [ address, name, type ]
+    getImportsByModuleName(name) {          // list [ address, name, type, moduleName ]
         var module = Process.findModuleByName(name);
         if (module)
             return module.enumerateImports().filter(function (i) {
@@ -138,35 +138,81 @@ rpc.exports = {
         return ptr(address).readByteArray(size);
         // throws frida.core.RPCException
     },
-
-    dump(address, size, ansi = true) {
+    
+    dump(address, size, limit = 0, ansi = true) {
+        var next, buf;
         try {
-            console.log("\n" + hexdump(ptr(address), {
-                "length": size, "ansi": ansi}) + "\n");
+            address = ptr(address);
+
+            // Fetch memory at specified address
+            buf = hexdump(address, {"length": size, "ansi": ansi});
+
+            // Recursively check if memory is pointer
+            for (var i = 0; i < limit; i++) {
+                next = address.readPointer();
+
+                // Fetch memory at next address
+                buf = hexdump(next, {"length": size, "ansi": ansi});
+
+                // If successful, dump memory at previous address
+                console.log("\n" + hexdump(ptr(address), {
+                    "length": Process.pointerSize, "ansi": ansi}) + "\n");
+
+                // Iterate with next address
+                address = next;
+            }
+            throw "Recursion limit reached: " + limit;
+            
+        // Dump memory at ultimate address
         } catch (error) {
-            console.error(error);
+            if (buf)
+                console.log("\n" + buf + "\n");
+            else
+                console.error(error);
         }
     },
 
-    search(address, size, pattern) {    // list [ address, size ]
+    search(pattern, address, size) {    // list [ address, size ]
         return Memory.scanSync(ptr(address), size, pattern);
         // throws frida.core.RPCException
     },
-
-    searchAndDump(address, size, pattern, ansi = true) {
+    
+    searchAndDump(pattern, address, size, limit = 0, ansi = true) {
+        var next, matches;
         try {
+            matches = [];
+            address = ptr(address);
             console.log(`Searching for ${pattern}`);
+
+            // Search memory at specified address
             Memory
-                .scanSync(ptr(address), size, pattern)
+                .scanSync(address, size, pattern)
                 .forEach(function (match) {
                     console.log("\n" + hexdump(ptr(match.address), {
                         "length": match.size, "ansi": ansi}) + "\n");
                 });
+
+            // Recursively check if memory is pointer
+            for (var i = 0; i < limit; i++) {
+                next = address.readPointer();
+
+                // Search memory at next address
+                Memory
+                    .scanSync(next, size, pattern)
+                    .forEach(function (match) {
+                        console.log("\n" + hexdump(ptr(match.address), {
+                            "length": match.size, "ansi": ansi}) + "\n");
+                    });
+
+                // If successful, iterate with next address
+                address = next;
+            }
+            
         } catch (error) {
             console.error(error);
         }
     },
-
+    
     test(args) {
         //console.log("Performing test with args: " + JSON.stringify(task.args));
         //for (var j = 0; j < 10000; j++)
