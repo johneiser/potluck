@@ -7,8 +7,10 @@ class AgentInterfaceBackbone(Interface):
     """
     Abstract interface with details for interacting with an injected agent
     """
+    device      = None  # Device controlling the target process
     session     = None  # Session with the attached process
     agent       = None  # Agent injected into the attached process
+    _image      = None  # Base image file path
     
     def get_modules(self, name=None):
         """
@@ -228,9 +230,41 @@ class AgentInterface(AgentInterfaceBackbone):
     """
     Abstract interface with common commands for tasking an injected agent
     """
+    device      = None  # Device controlling the target process
     session     = None  # Session with the attached process
     agent       = None  # Agent injected into the attached process
+    _image      = None  # Base image file path
     
+    @property
+    def image(self):
+        """Lazy image only captured when needed"""
+        if not hasattr(self, "_image") or not self._image:
+            if self.device.type != "local":
+                raise FileNotFoundError("Remote frida-server in use, image base path not valid: %s" % self.agent.exports.get_image())
+            self._image = self.agent.exports.get_image()
+        return self._image
+
+    @image.setter
+    def image(self, value):
+        """Enable override of default image"""
+        self._image = value
+
+        # Discard state
+        self._state = None
+
+    def do_image(self, line):
+        """image
+        get or set the base image file path"""
+
+        (image,) = parse_line_as(line, [str])
+
+        # Override default with custom image file path
+        if image:
+            self.image = image
+
+        # Print current image file path
+        print(self.image)
+
     def do_pid(self, line):
         """pid
         get the process id"""

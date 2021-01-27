@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.3.5
+^^^^^
+
+January 27, 2021
+
+- Moved image attribute to abstract agent interface
+
+
 0.3.4
 ^^^^^
 

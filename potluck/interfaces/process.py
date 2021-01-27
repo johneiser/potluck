@@ -15,6 +15,7 @@ class ProcessInterface(AgentInterface):
     session     = None  # Session with the attached process
     agent       = None  # Agent injected into the attached process
     script      = None  # Script to run for each hook
+    _image      = None  # Base image file path
     
     @classmethod
     def qualify(cls, self):
@@ -41,6 +42,7 @@ class ProcessInterface(AgentInterface):
         finally:
             self.session = None
             self.agent = None
+            self._image = None
 
     def _interrupt(self):
         """Called when the prompt is interrupted"""
