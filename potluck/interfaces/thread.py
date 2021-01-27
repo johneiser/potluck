@@ -1,7 +1,7 @@
 import shlex, json, queue, logging
 from . import Interface
 from .agent import AgentInterface
-from ..utils import tformat, tprint, to_hex
+from ..utils import tformat, tprint, to_hex, parse_as, parse_line_as, int16
 
 
 class Task:
@@ -152,108 +152,70 @@ class ThreadInterface(AgentInterface):
     #    get the details of the current hook function"""
     #    tprint(self.func)
 
-    def do_dump(self, line):
-        """dump [arg] [size]
-        dump bytes from the specified argument"""
-        args = shlex.split(line)
+    # Overload read to enable argument specification
+    def do_read(self, line):
+        """read [address|arg] [size]
+        read bytes from the specified address"""
 
-        # Parse size to read 
-        try:
-            size = int(args[1])
-        except ValueError:
-            size = int(args[1], 16)
-        except IndexError:
-            size = 32
+        # Parse arguments
+        (address, size) = parse_line_as(line, [int, int16, str], [int, int16, 32])
 
         # Read from the specified argument
-        try:
-            addr = self.args[int(args[0])]
-            self.agent.exports.dump(addr, size)
+        if address:
+            if isinstance(address, int):
+                try:
+                    self.dump(int16(self.args[address]), size)
+                    return
+                except IndexError:
+                    pass
 
-        # Try to read from all arguments
-        except IndexError:
-            for addr in self.args:
-                self.agent.exports.dump(addr, size)
+            # Read from the specified address
+            self.dump(address, size)
 
-    def do_dumpret(self, line):
-        """dumpret [arg]
-        dump bytes from the specified argument with the size of the return value"""
-        args = shlex.split(line)
+        # Read from all arguments
+        else:
+            for arg in self.args:
+                self.dump(int16(arg), size)
 
-        # Read from the specified argument
-        try:
-            addr = self.args[int(args[0])]
-            self.agent.exports.dump(addr, int(self.ret, 16))
+    # TODO: recursive read
+    # TODO: recursive search
 
-        # Try to read from all arguments
-        except IndexError:
-            for addr in self.args:
-                self.agent.exports.dump(addr, int(self.ret, 16))
+    # Overload search to enable argument specification
+    def do_search(self, line):
+        """search <pattern> [address|arg] [size]
+        search for a byte pattern at the specified address"""
 
-    def do_find(self, line):
-        """find <pattern> [arg] [size]
-        search for pattern in the bytes pointed to by the specified argument"""
-        args = shlex.split(line)
+        # Parse arguments
+        (pattern, address, size) = parse_line_as(line, [str], [int, int16, str], [int, int16, 1024])
 
-        # Parse pattern to search
-        try:
-            pattern = args[0].encode().decode("unicode_escape")
-        except IndexError:
-            self.log.error(e)
-            print("Usage: find <pattern> [arg] [size]")
+        # Validate required arguments
+        if not pattern:
+            print("Usage: search <pattern> [address|arg] [size]")
             return
 
-        # Parse size to search
-        try:
-            size = int(args[2])
-        except ValueError:
-            try:
-                size = int(args[2], 16)
-            except ValueError:
-                self.log.error(e)
-                print("Usage: find <pattern> [arg] [size]")
-                return
-        except IndexError:
-            size = max(len(pattern), 32)
+        # Normalize pattern
+        pattern = pattern.encode().decode("unicode_escape")
 
-        # Search the specified argument
-        try:
-            addr = self.args[int(args[1])]
-            self.agent.exports.search_and_dump(addr, size, to_hex(pattern))
+        # Search address of argument
+        if address:
+            if isinstance(address, int):
+                try:
+                    self.search(pattern, int16(self.args[address]), size)
+                
+                # Search address directly
+                except IndexError:
+                    self.search(pattern, address, size)
 
-        # Search all arguments
-        except IndexError:
-            for addr in self.args:
-                self.agent.exports.search_and_dump(addr, size, to_hex(pattern))
-
-    def do_findret(self, line):
-        """find <pattern> [arg]
-        search for pattern in the bytes pointed to by the specified argument for a length of the return value"""
-        args = shlex.split(line)
-
-        # Parse pattern to search
-        try:
-            pattern = args[0].encode().decode("unicode_escape")
-        except IndexError:
-            self.log.error(e)
-            print("Usage: findret <pattern> [arg]")
-            return
-
-        # Search the specified argument
-        try:
-            addr = self.args[int(args[1])]
-            self.agent.exports.search_and_dump(addr,
-                int(self.ret, 16), to_hex(pattern))
-
-        # Search all arguments
-        except IndexError:
-            for addr in self.args:
-                self.agent.exports.search_and_dump(addr,
-                    int(self.ret, 16), to_hex(pattern))
+        # Search through all arguments
+        else:
+            for arg in self.args:
+                self.search(pattern, int16(arg), size)
 
     def do_simulate(self, line):
         """simulate <file>
         capture the state of the target for simulation"""
+
+        # TODO: automatic on each hook
 
         try:
             # Import angr and remove added logging handler

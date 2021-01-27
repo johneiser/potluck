@@ -1,6 +1,6 @@
 import shlex, json, frida
 from .agent import AgentInterface
-from ..utils import tformat, tprint
+from ..utils import tformat, tprint, parse_as, parse_line_as, int16
 
 
 class ProcessInterface(AgentInterface):
@@ -91,26 +91,11 @@ class ProcessInterface(AgentInterface):
     def do_hook(self, line):
         """hook <function> [module] [number]
         hook the specified function(s) with number of arguments to parse"""
-        functions = None
 
-        # Parse optional arguments
-        try:
-            (function, module, number) = shlex.split(line)
-        except ValueError as e:
-            number = 3
-            try:
-                (function, module) = shlex.split(line)
-            except ValueError as e:
-                module = None
+        # Parse arguments
+        (function, module, number) = parse_line_as(line, [int16, str], [str], [int, 3])
 
-                # Parse required arguments
-                try:
-                    (function,) = shlex.split(line)
-                except ValueError as e:
-                    self.log.error(e)
-                    print("Usage: exports <module> [module] [number]")
-                    return
-
+        # Fetch modules and functions
         modules = self.get_modules(module)
         functions = self.get_functions(function)
 

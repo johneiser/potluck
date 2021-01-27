@@ -2,6 +2,16 @@
 Changelog
 =========
 
+0.3.2
+^^^^^
+
+January 27, 2021
+
+- Enriched imports/exports with module name
+- Added parse_as and parse_line_as utilities
+- Refactor agent, process, and thread interfaces with parsing utilities
+
+
 0.3.1
 ^^^^^
 

@@ -101,25 +101,37 @@ rpc.exports = {
     getExportsByModuleAddress(address) {    // list [ address, name, type ]
         var module = Process.findModuleByAddress(ptr(address));
         if (module)
-            return module.enumerateExports();
+            return module.enumerateExports().filter(function (e) {
+                e.moduleName = module.name;
+                return e;
+            });
     },
 
     getExportsByModuleName(name) {          // list [ address, name, type ]
         var module = Process.findModuleByName(name);
         if (module)
-            return module.enumerateExports();
+            return module.enumerateExports().filter(function (e) {
+                e.moduleName = module.name;
+                return e;
+            });
     },
 
     getImportsByModuleAddress(address) {    //list [ address, name, type ]
         var module = Process.findModuleByAddress(ptr(address));
         if (module)
-            return module.enumerateImports();
+            return module.enumerateImports().filter(function (i) {
+                i.moduleName = module.name;
+                return i;
+            });
     },
 
     getImportsByModuleName(name) {          // list [ address, name, type ]
         var module = Process.findModuleByName(name);
         if (module)
-            return module.enumerateImports();
+            return module.enumerateImports().filter(function (i) {
+                i.moduleName = module.name;
+                return i;
+            });
     },
 
     read(address, size) {   // bytes

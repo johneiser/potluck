@@ -72,7 +72,7 @@ Hooking: 0x7f113af7b1d0 libc.so.6!__write
 Hooking: 0x7f113ae4a280 libpthread.so.0!write
 Hello world!
 0x7f113af7b1d0 libc.so.6!__write (0x1, 0x56127d2b2cf0, 0xd) = 0xd
-[Session(pid=37661) => 37661]> dumpret 1
+[Session(pid=37661) => 37661]> read 1 0xd
 
                0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F  0123456789ABCDEF
 56127d2b2cf0  48 65 6c 6c 6f 20 77 6f 72 6c 64 21 0a           Hello world!.
