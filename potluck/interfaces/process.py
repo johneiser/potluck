@@ -2,6 +2,11 @@ import shlex, json, frida
 from .agent import AgentInterface
 from ..utils import tformat, tprint, parse_as, parse_line_as, int16
 
+# Frontload importing angr, it's quite slow
+try:
+    from .angr_target import FridaConcreteTarget
+except ImportError:
+    pass
 
 class ProcessInterface(AgentInterface):
     """
@@ -41,7 +46,6 @@ class ProcessInterface(AgentInterface):
         """Called when the prompt is interrupted"""
 
         # Remove all hooks
-        self.log.debug("Removing hooks from session: %s", self.session)
         self.agent.exports.unhook()
 
         # Remove automated script, if set
@@ -76,6 +80,13 @@ class ProcessInterface(AgentInterface):
                 # Reset script
                 if self.script:
                     self.cmdqueue = [c for c in self.script]
+
+                # Construct angr bridge
+                try:
+                    from .angr_target import FridaConcreteTarget
+                    self.bridge = FridaConcreteTarget(self.agent, message["context"])
+                except ImportError as e:
+                    self.log.info("Tip: use `pip3 install %s[angr]` to enable symbolic execution", self.log.name)
 
                 # Resume prompt
                 self.event.set()

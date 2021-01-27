@@ -16,6 +16,14 @@ const Task = Object.freeze({
 
 rpc.exports = {
 
+    getImage() {    // path
+        return Process
+            .enumerateModules()
+            .sort(function (a, b) {
+                return a["base"] - b["base"]
+            })[0]["path"];
+    },
+
     getPid() {      // pid
         return Process.id;
     },

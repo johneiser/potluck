@@ -2,6 +2,15 @@
 Changelog
 =========
 
+0.3.4
+^^^^^
+
+January 27, 2021
+
+- Added lazy capturing of angr state
+- Added attempt to guess image base path along with ability to manually specify
+
+
 0.3.3
 ^^^^^
 

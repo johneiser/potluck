@@ -1,21 +1,70 @@
-import logging, frida
+import os, logging, frida, angr
+from ..utils import log
+
+# Remove angr's added handler
+for handler in log.parent.handlers:
+    if isinstance(handler, angr.misc.loggers.CuteHandler):
+        log.parent.removeHandler(handler)
+        log.debug("Removing extra log handler: %s", handler)
+
 from angr_targets import ConcreteTarget
 from angr.errors import SimConcreteMemoryError, SimConcreteRegisterError, SimConcreteBreakpointError
 from angr_targets.memory_map import MemoryMap
-from ..utils import log
 
 
 class FridaConcreteTarget(ConcreteTarget):
     """
     Concrete target to provide state for symbolic execution via frida.
     """
-    agent   = None  # Agent injected into the attached process
-    context = None  # CPU context at the hooked location
+    agent       = None  # Agent injected into the attached process
+    context     = None  # CPU context at the hooked location
 
     def __init__(self, agent, context):
         super(FridaConcreteTarget, self).__init__()
         self.agent = agent
         self.context = context
+
+    def capture_state(self, image=None):
+        """
+        Capture the state of the target for simulation.
+
+        :param str image: base image file path
+        :raises: FileNotFoundError if image does not exist
+        """
+        try:
+            image = image or agent.exports.get_image()
+            log.debug("Loading base image: %s", image)
+            if not os.path.isfile(image):
+                raise FileNotFoundError("[Errno 2] No such file or directory: '%s'" % image)
+
+            log.debug("Creating angr project...")
+            p = angr.Project(image, concrete_target=self, use_sim_procedures=True)
+            log.debug("Created angr project: %s", p)
+
+            log.debug("Creating entry state...")
+            entry_state = p.factory.entry_state()
+            entry_state.options.add(angr.options.SYMBION_SYNC_CLE)
+            entry_state.options.add(angr.options.SYMBION_KEEP_STUBS_ON_SYNC)
+            log.debug("Created entry state: %s", entry_state)
+
+            log.debug("Creating simulation manager...")
+            simgr = p.factory.simgr(entry_state)
+            log.debug("Created simulation manager: %s", simgr)
+
+            log.debug("Syncing state with concrete target...")
+            simgr.use_technique(angr.exploration_techniques.Symbion(find=[int(self.context["pc"],16)]))
+            exploration = simgr.run()
+            log.debug("Sync complete: %s", exploration)
+        
+            return exploration.stashes["found"][0]
+
+        except (IndexError,) as e:
+            log.exception(e)
+
+        except (angr.errors.AngrError,) as e:
+            log.exception(e)
+
+        return None
 
     def read_memory(self, address, nbytes, **kwargs):
         """

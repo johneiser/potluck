@@ -36,7 +36,7 @@ def tformat(items, **kwargs):
 
     # Default to pprint if prettytable is not available
     except NameError:
-        log.info("Tip: `pip3 install %s[pretty]` to improve this output", __package__)
+        log.info("Tip: use `pip3 install %s[pretty]` to improve this output", __package__)
         return pprint.pformat(items)
 
 def tprint(*args, **kwargs):
