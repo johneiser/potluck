@@ -1,6 +1,12 @@
 from .thread import ThreadInterface
-from ..utils import parse_as, parse_line_as
+from ..utils import parse_as, parse_line_as, int16
+from ..simulations import simulations
 
+# Try to populate simulation list
+try:
+    from ..simulations import *
+except ImportError:
+    pass
 
 class AngrInterface(ThreadInterface):
     """
@@ -37,13 +43,19 @@ class AngrInterface(ThreadInterface):
     @property
     def state(self):
         """Lazy state only captured when needed"""
+
+        # Capture current state
         if not self._state:
             try:
                 self._state = self.bridge.capture_state(self.image)
+
+            # Cancel whatever command asked for the state
             except FileNotFoundError as e:
                 self.log.error(e)
                 self.log.warning("Need local copy of base image to perform symbolic execution. Use `image [path]` to point at your local copy.")
-        return self._state
+                raise KeyboardInterrupt from e
+
+        return self._state.copy()
 
     def do_continue(self, line):
         """continue
@@ -55,5 +67,28 @@ class AngrInterface(ThreadInterface):
 
         return super(AngrInterface, self).do_continue(line)
 
-    def do_test(self, line):
-        print(self.state)
+    def do_simulate(self, line):
+        """simulate <simulation> [options]
+        run a simulation"""
+        
+        # Run simulation
+        try:
+            sim,_,opts = line.partition(" ")
+            func = simulations[sim.lower()]
+            func(self.state, self.args, self.ret)
+
+        # Show available simulations
+        except KeyError as e:
+            print("Simulation not found: %s" % e)
+            print("Usage: symrun <simulation> [options]")
+            self.print_topics("Simulations available", list(simulations.keys()), 15, 80)
+
+        # Handle unknown simulation errors
+        except Exception as e:
+            self.log.exception(e)
+
+    def complete_simulate(self, text, line, begidx, endidx):
+        """Complete command from available simulations"""
+        if text:
+            return [s for s in simulations.keys() if s.startswith(text.lower())]
+        return simulations.keys()

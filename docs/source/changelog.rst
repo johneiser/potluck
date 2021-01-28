@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.3.6
+^^^^^
+
+January 28, 2021
+
+- Added ability to run arbitrary simulations when hooked
+
+
 0.3.5
 ^^^^^
 
