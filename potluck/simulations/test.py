@@ -4,11 +4,12 @@ from ..utils import log, int16
 
 
 @simulation
-def test(state, args, ret, *opts, **kwargs):
+def test(state, args, ret, *opts):
     log.info("Starting test simulation")
     log.debug(state)
     log.debug(args)
     log.debug(ret)
+    log.debug(opts)
 
     # Print string behind every argument
     for arg in args:

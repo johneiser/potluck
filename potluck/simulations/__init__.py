@@ -1,5 +1,6 @@
 __all__ = [
     "test",
+    "vulns",
     ]
 
 simulations = {}

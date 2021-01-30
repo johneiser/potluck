@@ -2,6 +2,16 @@
 Changelog
 =========
 
+0.3.7
+^^^^^
+
+January 30, 2021
+
+- Enabled passing arbitrary options to simulations
+- Enabled marking memory address as symbolic
+- Started adding fuzzing simulation (waiting for angr/angr/issues/2384)
+
+
 0.3.6
 ^^^^^
 

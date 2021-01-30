@@ -1,3 +1,4 @@
+import shlex
 from .thread import ThreadInterface
 from ..utils import parse_as, parse_line_as, int16
 from ..simulations import simulations
@@ -5,6 +6,7 @@ from ..simulations import simulations
 # Try to populate simulation list
 try:
     from ..simulations import *
+    import angr, claripy
 except ImportError:
     pass
 
@@ -55,7 +57,7 @@ class AngrInterface(ThreadInterface):
                 self.log.warning("Need local copy of base image to perform symbolic execution. Use `image [path]` to point at your local copy.")
                 raise KeyboardInterrupt from e
 
-        return self._state.copy()
+        return self._state
 
     def do_continue(self, line):
         """continue
@@ -75,7 +77,7 @@ class AngrInterface(ThreadInterface):
         try:
             sim,_,opts = line.partition(" ")
             func = simulations[sim.lower()]
-            func(self.state, self.args, self.ret)
+            func(self.state.copy(), self.args, self.ret, *shlex.split(opts))
 
         # Show available simulations
         except KeyError as e:
@@ -92,3 +94,28 @@ class AngrInterface(ThreadInterface):
         if text:
             return [s for s in simulations.keys() if s.startswith(text.lower())]
         return simulations.keys()
+
+    def do_symaddr(self, line):
+        """simaddr <address> <size> [name]
+        mark memory address as symbolic"""
+
+        # Parse arguments
+        (addr, size, name) = parse_line_as(line, [int, int16], [int, int16], [str, "addr"])
+
+        # Validate required arguments
+        if not addr or not size:
+            print("Usage: simaddr <address> <size> [name]")
+            return
+
+        # Convert argument to address
+        if isinstance(addr, int):
+            try:
+                addr = int16(self.args[addr])
+            except IndexError:
+                pass
+
+        # Symbolize address     # TODO: cache symbols, enable removal/clear from state
+        sym = claripy.BVS(name, size * 8)
+        self.state.memory.store(addr, sym)
+        self.log.info("Marked 0x%x with %i bytes of symbolic memory, named '%s'", addr, size, name)
+
