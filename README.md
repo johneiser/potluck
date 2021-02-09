@@ -10,7 +10,7 @@ TODO:
 - [x] create angr concrete target
 - [x] pull state from frida using concrete target and symbion
 - [x] automatically get file backing process for simulation
-- [ ] do something with symbolic execution
+- [ ] do something with symbolic execution (waiting for [angr/angr/issues/2384](https://github.com/angr/angr/issues/2384))
 
 ## Requirements
 

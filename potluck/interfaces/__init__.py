@@ -65,7 +65,7 @@ class Interface(cmd.Cmd, metaclass=Interfaceable):
             return True
 
         # Warn frida and parsing errors, but continue
-        if exc_type in (frida.core.RPCException, ValueError):
+        if exc_type in (frida.core.RPCException, ValueError, FileNotFoundError):
             self.log.error(exc_value)
             return True
 

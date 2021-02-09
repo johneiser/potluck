@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.3.8
+^^^^^
+
+February 8, 2021
+
+- Fixed bug where 'image' would crash during remote connection
+
+
 0.3.7
 ^^^^^
 
