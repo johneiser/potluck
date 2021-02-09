@@ -1,5 +1,6 @@
 import shlex, json, pprint, frida
 from . import Interface
+from ..utils import tformat, tprint 
 
 
 class Prompt(Interface):
@@ -50,6 +51,12 @@ class Prompt(Interface):
         except (json.decoder.JSONDecodeError, KeyError) as e:
             self.log.debug("Failed to process message: %s", e)
             pprint.pprint(message.get("description", message))
+
+    def do_ps(self, line):
+        """ps
+        list current processes"""
+        processes = [{"pid": p.pid, "name": p.name} for p in self.device.enumerate_processes()]
+        tprint(processes, sortby="pid", align="l", field_names=["pid", "name"])
 
     def do_spawn(self, command):
         """spawn <command>

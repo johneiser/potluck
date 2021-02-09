@@ -270,6 +270,12 @@ class AgentInterface(AgentInterfaceBackbone):
         get the process id"""
         print(self.agent.exports.get_pid())
 
+    def do_ps(self, line):
+        """ps
+        list current processes"""
+        processes = [{"pid": p.pid, "name": p.name} for p in self.device.enumerate_processes()]
+        tprint(processes, sortby="pid", align="l", field_names=["pid", "name"])
+
     def do_arch(self, line):
         """arch
         get the target architecture"""

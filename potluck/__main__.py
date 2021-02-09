@@ -50,11 +50,14 @@ def run(create=None, process=None, function=None, module=None, number=None, scri
     if function:
         if module:
             if number:
-                prompt.cmdqueue.append("hook %s %s %s" % (function, module, number))
+                prompt.cmdqueue.append("hook %s %s %i" % (function, module, number))
             else:
                 prompt.cmdqueue.append("hook %s %s" % (function, module))
         else:
-            prompt.cmdqueue.append("hook %s" % function)
+            if number:
+                prompt.cmdqueue.append("hook %s * %i" % (function, number))
+            else:
+                prompt.cmdqueue.append("hook %s" % function)
 
     # Automate commands for every hook
     if script:

@@ -8,6 +8,8 @@ Changelog
 February 8, 2021
 
 - Fixed bug where 'image' would crash during remote connection
+- Fixed bug preventing argument number specification without module
+- Added process listing
 
 
 0.3.7
