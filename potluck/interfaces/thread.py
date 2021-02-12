@@ -194,7 +194,7 @@ class ThreadInterface(AgentInterface):
         pattern = pattern.encode().decode("unicode_escape")
 
         # Search address of argument
-        if address:
+        if address is not None:
             if isinstance(address, int):
                 try:
                     self.search(pattern, int16(self.args[address]), size, limit)
@@ -203,8 +203,9 @@ class ThreadInterface(AgentInterface):
                 except IndexError:
                     self.search(pattern, address, size, limit)
 
-        # Search through all arguments, recursively
+        # Search everywhere
         else:
-            for arg in self.args:
-                self.search(pattern, int16(arg), size, 5)
+            self.search(pattern)
+            #for arg in self.args:
+            #    self.search(pattern, int16(arg), size, 5)
 

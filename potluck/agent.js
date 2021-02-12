@@ -82,7 +82,7 @@ rpc.exports = {
         return Process.enumerateThreads();
     },
 
-    getRanges(protection = "---") {
+    getRanges(protection = "---") {     // list [ base, size, protection, file ]
         return Process.enumerateRanges(protection);
     },
 
@@ -190,7 +190,7 @@ rpc.exports = {
         try {
             matches = [];
             address = ptr(address);
-            console.log(`Searching for ${pattern}`);
+            console.log(`Searching for ${pattern} between ${address} and ${address.add(size)}`);
 
             // Search memory at specified address
             Memory
@@ -219,6 +219,12 @@ rpc.exports = {
         } catch (error) {
             console.error(error);
         }
+    },
+
+    searchAndDumpAll(pattern, ansi = true) {
+        Process.enumerateRanges("r--").forEach(function (range) {
+            rpc.exports.searchAndDump(pattern, range.base, range.size, 0, ansi);
+        });
     },
     
     test(args) {

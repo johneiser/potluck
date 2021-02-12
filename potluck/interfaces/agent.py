@@ -194,7 +194,7 @@ class AgentInterfaceBackbone(Interface):
                         self.log.info(export["name"])
                         self.agent.exports.dump(export["address"], size, limit)
 
-    def search(self, pattern, address, size=1024, limit=0):
+    def search(self, pattern, address=None, size=1024, limit=0):
         """
         Search for a byte pattern at an arbitrary address.
 
@@ -204,26 +204,31 @@ class AgentInterfaceBackbone(Interface):
         :param int limit: recursion limit
         """
         if pattern:
+            if address:
 
-            # Search at address
-            if isinstance(address, int):
-                self.agent.exports.search_and_dump(to_hex(pattern), address, size, limit)
+                # Search at address
+                if isinstance(address, int):
+                    self.agent.exports.search_and_dump(to_hex(pattern), address, size, limit)
 
-            # Search at symbol name
+                # Search at symbol name
+                else:
+                    symbol = self.agent.exports.get_symbol_by_name(address)
+                    if symbol and symbol["address"]:
+                        self.log.info(symbol["name"])
+                        self.agent.exports.search_and_dump(to_hex(pattern), symbol["address"], size, limit)
+                        return
+
+                    # Search at export name
+                    exports = self.get_exports()
+                    if exports:
+                        for export in exports:
+                            if fnmatch.fnmatch(export["name"].lower(), address):
+                                self.log.info(export["name"])
+                                self.agent.exports.search_and_dump(to_hex(pattern), export["address"], size, limit)
+
+            # Search all addresses
             else:
-                symbol = self.agent.exports.get_symbol_by_name(address)
-                if symbol and symbol["address"]:
-                    self.log.info(symbol["name"])
-                    self.agent.exports.search_and_dump(to_hex(pattern), symbol["address"], size, limit)
-                    return
-
-                # Search at export name
-                exports = self.get_exports()
-                if exports:
-                    for export in exports:
-                        if fnmatch.fnmatch(export["name"].lower(), address):
-                            self.log.info(export["name"])
-                            self.agent.exports.search_and_dump(to_hex(pattern), export["address"], size, limit)
+                self.agent.exports.search_and_dump_all(to_hex(pattern))
 
 
 class AgentInterface(AgentInterfaceBackbone):
@@ -425,15 +430,15 @@ class AgentInterface(AgentInterfaceBackbone):
         self.dump(address, size, limit)
 
     def do_search(self, line):
-        """search <pattern> <address> [size] [limit]
+        """search <pattern> [address] [size] [limit]
         search for a byte pattern after the specified address"""
 
         # Parse arguments
         (pattern, address, size, limit) = parse_line_as(line, [str], [int16, str], [int, int16, 1024], [int, 0])
         
         # Validate required arguments
-        if not pattern and address:
-            print("Usage: search <pattern> <address> [size] [limit]")
+        if not pattern:
+            print("Usage: search <pattern> [address] [size] [limit]")
             return
 
         # Search memory

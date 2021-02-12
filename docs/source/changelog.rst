@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.3.9
+^^^^^
+
+February 11, 2021
+
+- Added ability to search for pattern in entire memory space
+
+
 0.3.8
 ^^^^^
 
