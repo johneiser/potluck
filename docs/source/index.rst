@@ -8,7 +8,7 @@ Use python3-pip to install:
 
 .. code-block:: none
 
-    sudo pip3 install git+https://github.com/johneiser/potluck.git
+    sudo pip3 install frida-potluck
 
 
 Once installed, the :code:`potluck` command becomes available. Simply launch a `frida-server <https://github.com/frida/frida/releases>`_ on the target and connect to it with the following command:

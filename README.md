@@ -14,17 +14,19 @@ TODO:
 - [ ] pull state from frida manually ([angr/angr/issues/2384](https://github.com/angr/angr/issues/2384))
 - [ ] do something with symbolic execution
 
+
 ## Requirements
 
 - python >= 3.5
 - python3-pip
+
 
 ## Install
 
 To install the basic frida debugger:
 
 ```
-$ sudo pip3 install git+https://github.com/johneiser/potluck.git
+$ sudo pip3 install frida-potluck
 ```
 
 <!--
@@ -35,8 +37,16 @@ $ sudo pip3 install frida-potluck[angr]
 -->
 
 
-# Usage
+Or to install from source, for development:
+```
+$ python -m virtualenv -p python3 venv
+$ source venv/bin/activate
+(venv) $ git clone https://github.com/johneiser/potluck.git
+(venv) $ pip install -e ./potluck
+```
 
+
+## Usage
 
 ```
 usage: potluck [-h] [-c CREATE] [-p PROCESS] [-f FUNCTION] [-m MODULE]
@@ -62,7 +72,7 @@ optional arguments:
 ```
 
 
-# Quick start
+## Quick start
 
 Spawn `echo` and hook after it has written "Hello, world!".
 ```
