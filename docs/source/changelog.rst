@@ -2,6 +2,14 @@
 Changelog
 =========
 
+1.0.0
+^^^^^
+
+February 18, 2021
+
+- Restructured code to be more extensible
+
+
 0.3.9
 ^^^^^
 

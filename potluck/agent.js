@@ -8,6 +8,8 @@ and control from its python handler prior to
 resuming execution.
 */
 
+const Ansi = true;
+
 const Task = Object.freeze({
     "NOP"   : 0,
     "RESUME": 1,
@@ -147,7 +149,7 @@ rpc.exports = {
         // throws frida.core.RPCException
     },
     
-    dump(address, size, limit = 0, ansi = true) {
+    dump(address, size, limit = 0, ansi = Ansi) {
         var next, buf;
         try {
             address = ptr(address);
@@ -185,7 +187,7 @@ rpc.exports = {
         // throws frida.core.RPCException
     },
     
-    searchAndDump(pattern, address, size, limit = 0, ansi = true) {
+    searchAndDump(pattern, address, size, limit = 0, ansi = Ansi) {
         var next, matches;
         try {
             matches = [];
@@ -221,7 +223,7 @@ rpc.exports = {
         }
     },
 
-    searchAndDumpAll(pattern, ansi = true) {
+    searchAndDumpAll(pattern, ansi = Ansi) {
         Process.enumerateRanges("r--").forEach(function (range) {
             rpc.exports.searchAndDump(pattern, range.base, range.size, 0, ansi);
         });
@@ -236,6 +238,8 @@ rpc.exports = {
     hook(address, numArgs = 3) {
         var symbol = DebugSymbol.fromAddress(ptr(address))
         console.log(`Hooking: ${symbol}`);
+        // TODO: Debug symbol is sometimes inaccurate..
+        // Hooking: 0x7ff8de1fadc0 notepad.exe!LoadLibraryExW
         
         Interceptor.attach(ptr(address), {
 
