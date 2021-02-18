@@ -115,6 +115,8 @@ try:
             return cls
 
         def _exit(self):
+            super(SimulatedThreadInterface, self)._exit()
+
             try:
                 pass
 
