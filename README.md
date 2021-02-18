@@ -27,10 +27,10 @@ To install the basic frida debugger:
 $ sudo pip3 install git+https://github.com/johneiser/potluck.git
 ```
 
-[comment]: # To add support for angr symbolic execution:
-[comment]: # ```
-[comment]: # $ sudo pip3 install potluck[angr]
-[comment]: # ```
+[comment]: <> To add support for angr symbolic execution:
+[comment]: <> ```
+[comment]: <> $ sudo pip3 install potluck[angr]
+[comment]: <> ```
 
 
 # Usage
