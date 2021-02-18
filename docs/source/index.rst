@@ -37,24 +37,15 @@ Once connected, you will be presented with a command-line interface with varying
     +-------------+----------------+--------+---------------------------------+
     | notepad.exe | 0x7ff6ca880000 | 229376 | C:\Windows\system32\notepad.exe |
     +-------------+----------------+--------+---------------------------------+
-    [Session(pid=8872)]> detach
-    [192.168.1.2:1337]> exit
 
 
-At any point, you can type :code:`help` to show the available commands or :code `help [command]` to show the usage details for a particular command.
+At any point, you can invoke :code:`help` to show the available commands, :code:`help [command]` to show the usage details for a particular command, or :code:`exit` to cleanly detach from the process and quit.
 
 .. code-block::
 
     [Session(pid=8872)]> help modules
     modules [name]
         list modules loaded in the process
-
-
-Finally, the :code:`exit` command can be invoked at any point to cleanly detach from the process.
-
-.. code-block::
-
-    [Session(pid=8872)]> exit
 
 
 While a lot of the functionality will be simply a wrapper around Frida's native functionality, Potluck is built to be extensible and include more sophisticated functionality like `angr <https://docs.angr.io>`_ integration.
