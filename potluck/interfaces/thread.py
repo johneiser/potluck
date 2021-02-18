@@ -98,6 +98,12 @@ class ThreadInterface(Interface):
 try:
     import angr
 
+    # Remove angr's default log handler
+    for handler in log.parent.handlers:
+        if isinstance(handler, angr.misc.loggers.CuteHandler):
+            log.parent.removeHandler(handler)
+            log.debug("Removed default angr log handler: %s", handler)
+
     class SimulatedThreadInterface(ThreadInterface):
         """
         Interface that supports being attached to a hooked thread
