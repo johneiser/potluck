@@ -31,9 +31,10 @@ setup(
         "prettytable",
     ],
     extras_require = {
-        "angr": [
-            "angr",
-        ],
+        # TODO: implement angr
+        #"angr": [
+        #    "angr",
+        #],
     },
     classifiers = [
         "Development Status :: 3 - Alpha",

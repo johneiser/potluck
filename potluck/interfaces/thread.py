@@ -131,4 +131,6 @@ try:
                 pass
 
 except ImportError:
-    log.debug("Tip: use `pip3 install %s[angr]` to enable symbolic execution" % log.name)
+    # TODO: Implement angr
+    #log.debug("Tip: use `pip3 install %s[angr]` to enable symbolic execution" % log.name)
+    pass
