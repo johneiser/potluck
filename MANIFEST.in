@@ -1,0 +1,4 @@
+include LICENSE VERSION README.md
+recursive-include potluck *.js
+global-exclude *.py[cod]
+prune *__pycache__
