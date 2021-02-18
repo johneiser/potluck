@@ -1,3 +1,4 @@
+[![Documentation Status](https://readthedocs.org/projects/frida-potluck/badge/?version=latest)](https://frida-potluck.readthedocs.io/en/latest/?badge=latest)
 
 # Potluck
 
@@ -93,3 +94,5 @@ Hooking: 0x7ff8dd979400 notepad.exe!LoadLibraryW
 
 ...
 ```
+
+For further details, refer to the [docs](https://frida-potluck.readthedocs.io/en/latest/).
