@@ -132,5 +132,5 @@ try:
 
 except ImportError:
     # TODO: Implement angr
-    #log.debug("Tip: use `pip3 install %s[angr]` to enable symbolic execution" % log.name)
+    #log.debug("Tip: use `pip3 install frida-potluck[angr]` to enable symbolic execution")
     pass

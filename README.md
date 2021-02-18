@@ -30,7 +30,7 @@ $ sudo pip3 install git+https://github.com/johneiser/potluck.git
 <!--
 To add support for angr symbolic execution:
 ```
-$ sudo pip3 install potluck[angr]
+$ sudo pip3 install frida-potluck[angr]
 ```
 -->
 

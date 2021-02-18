@@ -7,7 +7,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name = "potluck",
+    name = "frida-potluck",
     version = read("VERSION"),
     license = "gpl-3.0",
     description = "Custom debugger combining dynamic instrumentation with symbolic execution",
