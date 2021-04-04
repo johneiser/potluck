@@ -2,6 +2,14 @@
 Changelog
 =========
 
+1.1.0
+^^^^^
+
+April 4, 2021
+
+- Implemented angr state capture in thread
+
+
 1.0.0
 ^^^^^
 

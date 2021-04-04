@@ -18,6 +18,8 @@ setup(
     packages = find_packages(include=[
         "potluck",
         "potluck.*",
+        "angr_targets",
+        "angr_targets.*",
     ]),
     package_data = {
         "potluck": [
@@ -31,10 +33,9 @@ setup(
         "prettytable",
     ],
     extras_require = {
-        # TODO: implement angr
-        #"angr": [
-        #    "angr",
-        #],
+        "angr": [
+            "angr",
+        ],
     },
     classifiers = [
         "Development Status :: 3 - Alpha",

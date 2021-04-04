@@ -11,7 +11,7 @@ TODO:
 - [x] create angr concrete target
 - [x] pull state from frida using concrete target and symbion
 - [x] automatically get file backing process for simulation
-- [ ] pull state from frida manually ([angr/angr/issues/2384](https://github.com/angr/angr/issues/2384))
+- [x] pull state from frida manually ([angr/angr/issues/2384](https://github.com/angr/angr/issues/2384))
 - [ ] do something with symbolic execution
 
 
@@ -29,20 +29,17 @@ To install the basic frida debugger:
 $ sudo pip3 install frida-potluck
 ```
 
-<!--
-To add support for angr symbolic execution:
-```
-$ sudo pip3 install frida-potluck[angr]
-```
--->
-
-
 Or to install from source, for development:
 ```
 $ python -m virtualenv -p python3 venv
 $ source venv/bin/activate
 (venv) $ git clone https://github.com/johneiser/potluck.git
 (venv) $ pip install -e ./potluck
+```
+
+To add support for angr symbolic execution:
+```
+$ sudo pip3 install frida-potluck[angr]
 ```
 
 
